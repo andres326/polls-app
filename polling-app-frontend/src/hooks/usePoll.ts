@@ -1,19 +1,19 @@
 import { useState } from 'react'
-import { getPolls } from '../services/polls'
+import { getPoll } from '../services/polls'
 import { useEffect } from 'react'
-import { SimplePoll } from '../types'
+import { DetailedPoll } from '../types'
 
-export const usePolls = () => {
+export const usePoll = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState(false)
-  const [polls, setPolls] = useState<Array<SimplePoll>>([])
+  const [poll, setPoll] = useState<DetailedPoll | null>(null)
 
   const getPollsList = async () => {
     try {
       setLoading(true)
-      const polls = await getPolls()
-      setPolls(polls)
+      const poll = await getPoll(id)
+      setPoll(poll)
     } catch {
-      setPolls([])
+      setPoll(null)
     } finally {
       setLoading(false)
     }
@@ -23,6 +23,6 @@ export const usePolls = () => {
     getPollsList()
   }, [])
 
-  return { polls, loading }
+  return { poll, loading }
 }
 
