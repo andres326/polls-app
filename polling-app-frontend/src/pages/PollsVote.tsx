@@ -1,8 +1,8 @@
-import { Link, useParams } from "react-router-dom";
-import { BackIcon } from "../components/icons";
+import { useParams } from "react-router-dom";
 import { usePoll } from "../hooks/usePoll";
 import { useState } from "react";
 import { vote } from "../services/polls";
+import { GoBack } from "../components/GoBack";
 
 export function PollsVote() {
   const { id = '' } = useParams()
@@ -19,21 +19,14 @@ export function PollsVote() {
 
   return (
     <main className="flex flex-col min-h-screen px-4 py-12 w-full mx-auto max-w-4xl">
-      <Link
-        to="/"
-        className="flex text-sm items-center underline mb-4 hover:text-blue-600"
-        viewTransition
-      >
-        <BackIcon height={16} width={16} />
-        Back to list
-      </Link>
-      <article className="flex flex-col sm:gap-8 md:flex-row mb-8">
+      <GoBack />
+      <article className="flex flex-col mb-8">
         <div className="flex flex-col py-4 px-8">
           <label className="mb-4">
             <p className="text-4xl font-bold mb-4">{poll?.title}</p>
             <p className="text-xl">{poll?.description}</p>
           </label>
-          <form className="flex flex-col gap-4 rounded-lg border-2 border-gray-200 p-4" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-4 rounded-lg border-2 border-gray-200 p-4 w-full max-w-xl" onSubmit={handleSubmit}>
             {poll?.options.map((option) => (
               <div key={option.id} className="flex gap-2">
                 <input
@@ -44,6 +37,7 @@ export function PollsVote() {
                   className=" rounded-lg border-2 border-gray-200 p-2"
                   checked={selectedOption === option.id}
                   onChange={(e) => setSelectedOption(e.target.value)}
+                  required
                 />
                 <label htmlFor={option.id} className="text-md text-gray-600">
                   {option.name}

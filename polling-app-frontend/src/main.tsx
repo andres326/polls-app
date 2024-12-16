@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import { PollsList } from './pages/PollsList.tsx'
 import { PollsVote } from './pages/PollsVote.tsx'
+import { CreatePoll } from './pages/CreatePoll.tsx'
 
 const router = createBrowserRouter([
   {
@@ -12,6 +13,10 @@ const router = createBrowserRouter([
   {
     path: '/:id',
     element: <PollsVote />,
+  },
+  {
+    path: '/create',
+    element: <CreatePoll />,
   }
 ])
 
