@@ -32,7 +32,7 @@ export class PollModel {
       options: result.rows.map((option: PollOption) => ({
         id: option.id,
         name: option.name,
-        count: option.count,
+        votes: option.votes,
       })),
     }
     return pollDto
@@ -55,17 +55,16 @@ export class PollModel {
       resultOptions.push({
         id: optionResult.rows[0].id,
         name: optionResult.rows[0].name,
-        count: 0
+        votes: 0
       })
     }
-    const pollDto: Poll = { ...resultPoll.rows[0], options: resultOptions }
+    const pollDto: FullPollResponse = { ...resultPoll.rows[0], options: resultOptions }
     return pollDto
   }
 
   static async vote({ pollId, optionId }: { pollId: string, optionId: string }) {
-    console.log({ pollId, optionId })
     const query = {
-      text: `UPDATE poll_options SET count = count + 1 WHERE poll_id = $1 AND id = $2`,
+      text: `UPDATE poll_options SET votes = votes + 1 WHERE poll_id = $1 AND id = $2`,
       values: [pollId, optionId],
     }
     await pool.query(query)

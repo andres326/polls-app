@@ -7,13 +7,21 @@ Content-Type: application/json
   "description": "My poll description",
   "options": [
     {
-      "option": "Option 1",
+      "name": "Option 1"
     },
     {
-      "option": "Option 2",
+      "name": "Option 2"
     },
     {
-      "option": "Option 3",
+      "name": "Option 3"
     }
   ]
+}
+
+### Vote for an option
+POST http://localhost:3000/polls/a622c84e-a7bf-4c21-a400-2ee180137ac4/vote
+Content-Type: application/json
+
+{
+  "optionId": "46628d63-f3cc-4074-9d04-3249b03cea9a"
 }

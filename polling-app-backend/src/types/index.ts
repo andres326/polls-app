@@ -27,5 +27,5 @@ export interface FullPollResponse {
 export interface PollOption {
   id: string
   name: string
-  count?: number
+  votes?: number
 }
