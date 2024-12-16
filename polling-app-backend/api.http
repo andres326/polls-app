@@ -1,0 +1,19 @@
+### Create a vehicle
+POST http://localhost:3000/polls
+Content-Type: application/json
+
+{
+  "title": "My poll",
+  "description": "My poll description",
+  "options": [
+    {
+      "option": "Option 1",
+    },
+    {
+      "option": "Option 2",
+    },
+    {
+      "option": "Option 3",
+    }
+  ]
+}

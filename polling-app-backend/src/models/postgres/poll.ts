@@ -1,12 +1,6 @@
 // db.js
 import { Pool } from "pg"
-
-export interface Poll {
-  id: string
-  title: string
-  description: string
-  options: string[]
-}
+import { CreatePoll, FullPollResponse, Poll, PollOption, PollResponse } from "../../types";
 
 const pool = new Pool({
   host: process.env.DATABASE_HOST ?? 'localhost',
@@ -17,54 +11,63 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
 });
 
-const pollColumns = {
-  id: 'id',
-  title: 'title',
-  description: 'description',
-  options: 'options',
-}
 
 export class PollModel {
-  static async get({ limit }: { limit: number }) {
-    const result = await pool.query(`SELECT * FROM vehicles LIMIT ${limit ?? 100}`)
-    return result
+  static async get({ limit }: { limit: number | undefined }) {
+    const result = await pool.query(`SELECT * FROM polls LIMIT ${limit}`)
+    const pollDto: PollResponse[] | [] = result.rows
+    return pollDto
   }
 
-  /* static async getById({ id }: { id: string }) {
-    const [result] = await pool.query(`SELECT * FROM vehicles WHERE id = ${id}`)
-    return result
+  static async getById({ id }: { id: string }) {
+    const query = {
+      text: `SELECT * FROM polls INNER JOIN poll_options ON poll_options.poll_id = polls.id WHERE polls.id = $1 `,
+      values: [id],
+    }
+    const result = await pool.query(query)
+    const pollDto: FullPollResponse | null = {
+      id: result.rows[0].id,
+      title: result.rows[0].title,
+      description: result.rows[0].description,
+      options: result.rows.map((option: PollOption) => ({
+        id: option.id,
+        name: option.name,
+        count: option.count,
+      })),
+    }
+    return pollDto
   }
 
-  static async create({ poll }: { poll: Poll }) {
-    const [result] = await sql`INSERT INTO polls${sql(
-      poll,
-      pollColumns
-    )}
-    returning *
-    `
+  static async create({ poll }: { poll: CreatePoll }) {
+    const queryPoll = {
+      text: `INSERT INTO polls (title, description) VALUES ($1, $2) RETURNING *`,
+      values: [poll.title, poll.description],
+    }
+    const resultPoll = await pool.query(queryPoll)
 
-    return result
+    let resultOptions: PollOption[] = []
+    for (const option of poll.options) {
+      const queryOption = {
+        text: `INSERT INTO poll_options (poll_id, name) VALUES ($1, $2) RETURNING *`,
+        values: [resultPoll.rows[0].id, option.name],
+      }
+      const optionResult = await pool.query(queryOption)
+      resultOptions.push({
+        id: optionResult.rows[0].id,
+        name: optionResult.rows[0].name,
+        count: 0
+      })
+    }
+    const pollDto: Poll = { ...resultPoll.rows[0], options: resultOptions }
+    return pollDto
   }
 
-  static async update({ id, poll }: { id: string; poll: Poll }) {
-    const exists = await sql`SELECT * FROM polls WHERE id = ${id}`
-    if (!exists) return false
-
-    const [result] = await sql`UPDATE vehicles SET ${sql(
-      poll,
-      pollColumns
-    )} WHERE id = ${id}
-    returning *
-    `
-
-    return result
+  static async vote({ pollId, optionId }: { pollId: string, optionId: string }) {
+    console.log({ pollId, optionId })
+    const query = {
+      text: `UPDATE poll_options SET count = count + 1 WHERE poll_id = $1 AND id = $2`,
+      values: [pollId, optionId],
+    }
+    await pool.query(query)
   }
-
-  static async delete({ id }: { id: string }) {
-    const exists = await sql`SELECT * FROM polls WHERE id = ${id}`
-    if (!exists) return false
-
-    await sql`DELETE FROM vehicles WHERE id = ${id}`
-    return true
-  } */
 }

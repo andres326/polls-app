@@ -2,78 +2,54 @@ import { Request, Response, NextFunction } from 'express'
 //import { validateVehicle } from '../schemas/vehicle.js'
 import { errors } from '../utils/constants'
 import { PollModel } from '../models/postgres/poll'
+import { validatePoll } from '../schemas/poll'
 
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { limit } = req.query
-    const polls = await PollModel.get({ limit: Number(limit) })
+    const { limit = 10 } = req.query
+    const polls = await PollModel.get({ limit: Number(limit) });
     return res.json(polls)
   } catch (error) {
     next({ name: errors.DB_ERROR, error })
   }
 }
 
-/* export const getById = async (req: Request, res: Response, next: NextFunction) => {
+export const getById = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params
   try {
-    const vehicle = await PollModel.getById({ id })
-    if (!vehicle) {
-      return res.status(404).json({ message: 'Vehicle not found' })
+    const poll = await PollModel.getById({ id })
+    if (!poll) {
+      return res.status(404).json({ message: 'Poll not found' })
     }
-    return res.json(vehicle)
+    return res.json(poll)
   } catch (error) {
     next({ name: errors.DB_ERROR, error })
   }
 }
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
-  const vehicleBody = validateVehicle(req.body)
+  const pollBody = validatePoll(req.body)
 
-  if (!vehicleBody.success) {
-    return next({ name: errors.VALIDATION_ERROR, errors: vehicleBody.error })
+  if (!pollBody.success) {
+    return next({ name: errors.VALIDATION_ERROR, errors: pollBody.error })
   }
 
-  const vehicle = vehicleBody.data
+  const poll = pollBody.data
   try {
-    const newVehicle = await PollModel.create({ vehicle })
-    return res.json(newVehicle)
+    const newPoll = await PollModel.create({ poll })
+    return res.json(newPoll)
   } catch (error) {
     next({ name: errors.DB_ERROR, error })
   }
 }
 
-export const update = async (req: Request, res: Response, next: NextFunction) => {
-  const vehicleBody = validateVehicle(req.body)
-
-  if (!vehicleBody.success) {
-    return next({ name: errors.VALIDATION_ERROR, errors: vehicleBody.error })
-  }
-
-  const vehicle = vehicleBody.data
-  const { id } = req.params
-
+export const vote = async (req: Request, res: Response, next: NextFunction) => {
+  const { id: pollId } = req.params
+  const { optionId } = req.body
   try {
-    const updatedVehicle = await PollModel.update({ id, vehicle })
-    if (!updatedVehicle) {
-      return res.status(404).json({ message: 'Vehicle not found' })
-    }
-
-    return res.json(updatedVehicle)
+    const vote = await PollModel.vote({ pollId, optionId })
+    return res.json({ message: 'Vote recorded' })
   } catch (error) {
     next({ name: errors.DB_ERROR, error })
   }
 }
-
-export const deleteItem = async (req: Request, res: Response, next: NextFunction) => {
-  const { id } = req.params
-  try {
-    const vehicle = await PollModel.delete({ id })
-    if (!vehicle) {
-      return res.status(404).json({ message: 'Vehicle not found' })
-    }
-    return res.json({ message: 'Vehicle deleted' })
-  } catch (error) {
-    next({ name: errors.DB_ERROR, error })
-  }
-} */
-
