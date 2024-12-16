@@ -68,5 +68,8 @@ export class PollModel {
       values: [pollId, optionId],
     }
     await pool.query(query)
+
+    return this.getById({ id: pollId })
+
   }
 }

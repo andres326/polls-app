@@ -39,3 +39,14 @@ export interface ErrorResponse {
   error: string,
   message: string
 }
+
+export interface ChartData {
+  labels: (string | undefined)[]
+  datasets: Array<{
+    label: string
+    data: (number | undefined)[]
+    backgroundColor: string[]
+    borderColor: string[]
+    borderWidth: number
+  }>
+}

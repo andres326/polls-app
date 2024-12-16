@@ -23,6 +23,6 @@ export const usePoll = ({ id }: { id: string }) => {
     getPollsList()
   }, [])
 
-  return { poll, loading }
+  return { poll, loading, setPoll }
 }
 

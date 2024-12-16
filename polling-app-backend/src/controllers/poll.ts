@@ -3,6 +3,7 @@ import { Request, Response, NextFunction, response } from 'express'
 import { errors } from '../utils/constants'
 import { PollModel } from '../models/postgres/poll'
 import { validatePoll } from '../schemas/poll'
+import { io } from '../app'
 
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -59,7 +60,8 @@ export const vote = async (req: Request, res: Response, next: NextFunction) => {
   const { id: pollId } = req.params
   const { optionId } = req.body
   try {
-    await PollModel.vote({ pollId, optionId })
+    const result = await PollModel.vote({ pollId, optionId })
+    io.emit('vote', result)
     return res.json({ response: 'Vote recorded', success: true })
   } catch (error) {
     next({ name: errors.DB_ERROR, error })
