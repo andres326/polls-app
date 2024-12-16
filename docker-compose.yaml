@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  db:
+    image: postgres
+    container_name: postgres_db
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: PollingApp
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - polling-app-network
+  frontend:
+    build:
+      context: ./polling-app-frontend
+      dockerfile: Dockerfile
+    container_name: polling-app-frontend
+    restart: always
+    ports:
+      - 4000:4000
+    environment:
+      - VITE_API_URI=http://localhost:3000
+    networks:
+      - polling-app-network
+  backend:
+    build:
+      context: ./polling-app-backend
+      dockerfile: Dockerfile
+    container_name: polling-app-backend
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_HOST=postgres_db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=example
+      - DATABASE_NAME=PollingApp
+    networks:
+      - polling-app-network
+networks:
+  polling-app-network:
+    driver: bridge
