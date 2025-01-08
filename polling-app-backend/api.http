@@ -1,4 +1,4 @@
-### Create a vehicle
+### Create a vehicle endpoint
 POST http://localhost:3000/polls
 Content-Type: application/json
 
